@@ -6,6 +6,7 @@ const HttpError = require('../models/http-error');
 const getCoordsForAddress = require('../util/location');
 const Place = require('../models/place');
 const User = require('../models/user');
+const fileDelete = require('../middleware/file-delete');
 
 // ----- GET PLACE BY ID -----
 
@@ -90,8 +91,8 @@ const createPlace = async (req, res, next) => {
     description,
     address,
     location: coordinates,
-    // req.file.path is a multer command, which automatically pulls the file path as string.
-    image: req.file.path,
+    // req.file.location is a multer command, which automatically pulls the location of the file.
+    image: req.file.location,
     // "req.userData" is created from check-auth.js.
     // when user is logged in, check-auth.js middleware stores userId in "req.userData".
     creator: req.userData.userId,
@@ -234,9 +235,7 @@ const deletePlace = async (req, res, next) => {
     return next(error);
   }
 
-  fs.unlink(imagePath, (err) => {
-    console.log(err);
-  });
+  fileDelete(imagePath);
 
   res.status(200).json({ message: 'Deleted place successfully.' });
 };
